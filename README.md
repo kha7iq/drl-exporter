@@ -44,7 +44,7 @@ You can use your Docker Hub credentials to authenticate, otherwise an anonymous 
 Multi Arch docker images are available (arm/arm64/amd64) you can pull it from dockerhub and run in your environment.
 
 ```bash
-docker pull khaliq/dlr-exporter:latest
+docker pull khaliq/drl-exporter:latest
 
 docker run -d -p 2121:2121  khaliq/drl-exporter:latest
 
@@ -99,7 +99,7 @@ version: "3.7"
 services:
 
   docker-hub-limit-exporter:
-    image: khaliq/dlr-exporter:latest
+    image: khaliq/drl-exporter:latest
     environment:
       - EXPORTER_PORT=8881
       - DOCKERHUB_USER=user

@@ -2,7 +2,7 @@ version: "3.7"
 services:
 
   docker-hub-limit-exporter:
-    image: khaliq/dlr-exporter:latest
+    image: khaliq/drl-exporter:latest
     environment:
       - EXPORTER_PORT=8881
       - DOCKERHUB_USER=user

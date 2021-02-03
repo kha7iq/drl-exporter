@@ -1,18 +1,20 @@
 <h2 align="center">
   <br>
-  <p align="center"><img width=30% src="https://github.com/m47ik/drl-exporter/blob/main/.github/img/logo.png"></p>
+  <p align="center"><img width=30% src="https://github.com/m47ik/drl-exporter/blob/master/.github/img/logo.png"></p>
 </h2>
 
 <h4 align="center">Dockerhub rate limit prometheus metrics exporter </h4>
 
 <p align="center">
+    <a href="https://hub.docker.com/r/khaliq/drl-exporter">
     <img alt="Docker Image Size (latest by date)" src="https://img.shields.io/docker/image-size/khaliq/drl-exporter?style=flat-square&logo=docker">
+    <a href="https://hub.docker.com/r/khaliq/drl-exporter/tags">
     <img alt="Docker Image Version (latest by date)" src="https://img.shields.io/docker/v/khaliq/drl-exporter?style=flat-square&logo=docker">
-    <img alt="License" src="https://img.shields.io/github/license/m47ik/drl-exporter">
+    <a href="https://github.com/m47ik/drl-exporter/blob/master/LICENSE">
+    <img alt="License" src="https://img.shields.io/github/license/m47ik/drl-exporter?style=flat-square&logo=github&logoColor=white">
     <a href="https://github.com/m47ik/drl-exporter/issues">
-    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/m47ik/drl-exporter?style=flat-square&logo=github&logoColor=white">
+    <img alt="GitHub issues" src="https://img.shields.io/github/issues/m47ik/drl-exporter?style=flat-square&logo=github&logoColor=white">
 </p>
-
 
 <p align="center">
   <a href="#about">About</a> •
@@ -36,7 +38,7 @@ RateLimit-Remaining and RateLimit-Reset into a Gauge metric.
 You can use your Docker Hub credentials to authenticate, otherwise an anonymous token is used.</p>
 
 ## Screenshot
-<p align="center"><img width=90% src="https://github.com/m47ik/drl-exporter/blob/main/.github/img/dashboard.png"></p>
+<p align="center"><img width=100% src="https://github.com/m47ik/drl-exporter/blob/master/.github/img/dashboard.png"></p>
 
 ## Usage
 Multi Arch docker images are available (arm/arm64/amd64) you can pull it from dockerhub and run in your environment.
@@ -125,7 +127,7 @@ Exporter     | http://localhost:8881
 <br>
 
 ## TODO
-- [ ] Tests (
+- [ ] Tests 
 - [ ] Helm Chart
 <br>
 

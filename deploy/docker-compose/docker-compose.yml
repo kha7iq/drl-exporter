@@ -1,0 +1,37 @@
+version: "3.7"
+services:
+
+  docker-hub-limit-exporter:
+    image: khaliq/dlr-exporter:latest
+    environment:
+      - EXPORTER_PORT=8881
+      - DOCKERHUB_USER=user
+      - DOCKERHUB_PASSWORD=password
+      #- ENABLE_USER_AUTH=true
+    ports:
+      - "8881"
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - type: bind
+        source: ./etc/prometheus.yaml
+        target: /etc/prometheus.yaml
+    entrypoint:
+      - /bin/prometheus
+      - --config.file=/etc/prometheus.yaml
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - ./example-data/datasources:/etc/grafana/provisioning/datasources
+      - ./example-data/dashboards-provisioning:/etc/grafana/provisioning/dashboards
+      - ./example-data/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    ports:
+      - "3000:3000"

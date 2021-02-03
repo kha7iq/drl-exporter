@@ -1,6 +1,6 @@
 <h2 align="center">
   <br>
-  <p align="center"><img width=30% src="https://github.com/m47ik/drl-exporter/blob/master/.github/img/logo.png"></p>
+  <p align="center"><img width=30% src="https://raw.githubusercontent.com/m47ik/drl-exporter/master/.github/img/logo.png"></p>
 </h2>
 
 <h4 align="center">Dockerhub rate limit prometheus metrics exporter </h4>
@@ -38,13 +38,32 @@ RateLimit-Remaining and RateLimit-Reset into a Gauge metric.
 You can use your Docker Hub credentials to authenticate, otherwise an anonymous token is used.</p>
 
 ## Screenshot
-<p align="center"><img width=100% src="https://github.com/m47ik/drl-exporter/blob/master/.github/img/dashboard.png"></p>
+<p align="center"><img width=100% src="https://raw.githubusercontent.com/m47ik/drl-exporter/master/.github/img/dashboard.png"></p>
 
 ## Usage
 Multi Arch docker images are available (arm/arm64/amd64) you can pull it from dockerhub and run in your environment.
 
 ```bash
 docker pull khaliq/dlr-exporter:latest
+
+docker run -d -p 2121:2121  khaliq/drl-exporter:latest
+
+curl localhost:2121/metrics
+```
+### Output
+```text
+# HELP dockerhub_limit_max_requests_time Dockerhub rate limit maximum requests total time seconds
+# TYPE dockerhub_limit_max_requests_time gauge
+dockerhub_limit_max_requests_time 21600
+# HELP dockerhub_limit_max_requests_total Dockerhub rate limit maximum requests in given time
+# TYPE dockerhub_limit_max_requests_total gauge
+dockerhub_limit_max_requests_total 100
+# HELP dockerhub_limit_remaining_requests_time Dockerhub rate limit remaining requests time seconds
+# TYPE dockerhub_limit_remaining_requests_time gauge
+dockerhub_limit_remaining_requests_time 21600
+# HELP dockerhub_limit_remaining_requests_total Dockerhub rate limit remaining requests in given time
+# TYPE dockerhub_limit_remaining_requests_total gauge
+dockerhub_limit_remaining_requests_total 99
 ```
 <br>
 To build the image in your local envorinment
@@ -132,7 +151,7 @@ Exporter     | http://localhost:8881
 <br>
 
 ## Issues
-Please open and issue if you are facing any problems.
+Please open an issue if you are facing any problems.
 <br>
 
 ## Credits

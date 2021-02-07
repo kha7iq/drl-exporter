@@ -5,10 +5,10 @@ deleteDatasources:
 
 datasources:
 - name: Prometheus
-  type: prom
+  type: prometheus
   access: proxy
   orgId: 1
-  url: http://prom:9090
+  url: http://prometheus:9090
   basicAuth: false
   isDefault: false
   version: 1

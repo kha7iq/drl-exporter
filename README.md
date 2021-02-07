@@ -112,11 +112,11 @@ services:
     image: prom/prometheus:latest
     volumes:
       - type: bind
-        source: ./etc/prom.yaml
-        target: /etc/prom.yaml
+        source: ./etc/prometheus.yaml
+        target: /etc/prometheus.yaml
     entrypoint:
       - /bin/prom
-      - --config.file=/etc/prom.yaml
+      - --config.file=/etc/prometheus.yaml
     ports:
       - "9090:9090"
 
@@ -146,7 +146,7 @@ Exporter     | http://localhost:8881
 <br>
 
 ## TODO
-- [ ] Tests 
+- [x] Tests 
 - [ ] Helm Chart
 <br>
 

@@ -1,0 +1,67 @@
+# Default values for drl-exporter.
+
+
+config:
+    exporterPort: 2121 ## Change metrics server listen port
+    enableUserAuth: false ## to enable auth with user change to true
+    dockerhubUsername: ## dockerhub username here
+    dockerhubPassword: ## ockerhub password here
+
+replicaCount: 1
+
+image:
+    repository: khaliq/drl-exporter
+    tag: latest
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceMonitor:
+    enabled: false
+    additionalLabels: {}
+    # namespace: monitoring
+    # interval: 30s
+    # scrapeTimeout: 10s
+
+serviceAccount:
+    # Specifies whether a service account should be created
+    create: false
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+    {}
+    # fsGroup: 2000
+
+securityContext:
+    {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+service:
+    type: ClusterIP
+    port: 2121
+
+resources:
+    limits:
+        cpu: 500m
+        memory: 128Mi
+    requests:
+        cpu: 500m
+        memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

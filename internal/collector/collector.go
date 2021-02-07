@@ -21,62 +21,34 @@ type Authentication struct {
 	IssuedAt    time.Time `json:"issued_at"`
 }
 
-var (
-	DockerMetrics = make(map[string]float64, 4)
-	l             = log.New(os.Stdout, "drl-exporter ", log.LstdFlags)
-)
+var DockerMetrics = make(map[string]float64, 4)
 
-// GetMetrics will get the token from dockerhub and send requests to get metrics headers
+// GetMetrics will save metrics in a float64 map
 func GetMetrics() {
-
+	l := log.New(os.Stdout, "drl-exporter ", log.LstdFlags)
 	tokenUrl := "https://auth.docker.io/token?service=" +
 		"registry.docker.io&scope=repository:" + *vars.DockerRepoImage + ":pull"
 	repoUrl := "https://registry-1.docker.io/v2/" +
 		"registry.docker.io&scope=repository:" + *vars.DockerRepoImage + "/manifests/latest"
-	var auth = Authentication{}
 
-	c := &http.Client{Timeout: 10 * time.Second}
-
-	tokenReq, err := http.NewRequest("GET", tokenUrl, nil)
+	tr, err := tokenRequest(tokenUrl)
 	if err != nil {
-		l.Println("unable to send request for token")
+		l.Printf("unable to send request %v\n",err)
 	}
 
-	if *vars.EnableUserAuth == true {
-		tokenReq.SetBasicAuth(*vars.Username, *vars.Password)
-	}
-
-	tokenReq.Close = true
-
-	tokenResp, err := c.Do(tokenReq)
+	tb, err := tokenBody(tr)
 	if err != nil {
-		l.Println("unable to get token", err)
+		l.Printf("unable to get token data %v\n", err)
 	}
-	defer tokenResp.Body.Close()
 
-	tokenBody, err := ioutil.ReadAll(tokenResp.Body)
+
+	lh, err := getLimitHeaders(repoUrl, tb)
 	if err != nil {
-		l.Println("unable to get token body")
+		l.Printf("unexpected response from docker %v\n", err)
 	}
 
-	err = json.Unmarshal([]byte(tokenBody), &auth)
-	if err != nil {
-		l.Println("unable to save token")
-	}
-
-	limitReq, err := http.NewRequest("HEAD", repoUrl, nil)
-	if err != nil {
-		l.Println(err)
-	}
-
-	limitReq.Header.Add("Authorization", "Bearer "+auth.Token)
-	limitResp, err := c.Do(limitReq)
-	if err != nil {
-		l.Println("unable to get response from dockerhub")
-	}
-
-	limitHeader := limitResp.Header.Get("RateLimit-Limit")
-	remainHeader := limitResp.Header.Get("RateLimit-Remaining")
+	limitHeader := lh.Header.Get("RateLimit-Limit")
+	remainHeader := lh.Header.Get("RateLimit-Remaining")
 
 	dockerLimit, err := convertHeaders(limitHeader)
 	if err != nil {
@@ -98,9 +70,10 @@ func GetMetrics() {
 		DockerMetrics["remainingRequestTotal"] = dockerLimitRemain[0]
 		DockerMetrics["remainingRequestTotalTime"] = dockerLimitRemain[1]
 	}
+
 }
 
-// convert and normalize the recieved headers
+
 func convertHeaders(data string) ([]float64, error) {
 
 	rs := strings.Replace(data, "w=", "", 2)
@@ -112,7 +85,6 @@ func convertHeaders(data string) ([]float64, error) {
 	return xFloat, nil
 }
 
-// takes slice of strings and convert them to float64
 func convertToFloat(xs []string) ([]float64, error) {
 	var xFloat []float64
 	for i := range xs {
@@ -125,4 +97,53 @@ func convertToFloat(xs []string) ([]float64, error) {
 	}
 
 	return xFloat, nil
+}
+
+func tokenRequest(url string ) (*http.Request, error){
+	tr, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	if *vars.EnableUserAuth == true {
+		tr.SetBasicAuth(*vars.Username, *vars.Password)
+	}
+	return tr, nil
+}
+
+func tokenBody(req *http.Request) ([]byte, error) {
+	c := http.Client{}
+	rsp, err := c.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	tr, err := ioutil.ReadAll(rsp.Body)
+	if err != nil {
+		return nil, err
+	}
+	rsp.Body.Close()
+	return tr, nil
+
+}
+
+func getLimitHeaders(url string, td []byte) (*http.Response,error) {
+	c := &http.Client{Timeout: 10 * time.Second}
+	var auth = Authentication{}
+
+	tkErr := json.Unmarshal(td, &auth)
+	if tkErr != nil {
+		return nil, tkErr
+	}
+
+	lmr, err := http.NewRequest("HEAD", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	lmr.Header.Add("Authorization", "Bearer "+auth.Token)
+	lr, err := c.Do(lmr)
+	if err != nil {
+		return nil, err
+	}
+
+	return lr, nil
 }

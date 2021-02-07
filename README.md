@@ -112,11 +112,11 @@ services:
     image: prom/prometheus:latest
     volumes:
       - type: bind
-        source: ./etc/prometheus.yaml
-        target: /etc/prometheus.yaml
+        source: ./etc/prom.yaml
+        target: /etc/prom.yaml
     entrypoint:
-      - /bin/prometheus
-      - --config.file=/etc/prometheus.yaml
+      - /bin/prom
+      - --config.file=/etc/prom.yaml
     ports:
       - "9090:9090"
 

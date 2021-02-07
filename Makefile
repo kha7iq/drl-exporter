@@ -1,5 +1,5 @@
 IMAGE_NAME=drl-exporter
-IMAGE_VERSION=1.0
+IMAGE_VERSION=2.0
 
 .PHONY: docker
 docker:

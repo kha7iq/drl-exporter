@@ -38,7 +38,7 @@ RateLimit-Remaining and RateLimit-Reset into a Gauge metric.
 You can use your Docker Hub credentials to authenticate, otherwise an anonymous token is used.</p>
 
 ## Screenshot
-<p align="center"><img width=100% src="https://raw.githubusercontent.com/m47ik/drl-exporter/master/.github/img/dashboard.png"></p>
+<p align="center"><img width=70% src="https://raw.githubusercontent.com/m47ik/drl-exporter/master/.github/img/dashboard.png"></p>
 
 ## Usage
 Multi Arch docker images are available (arm/arm64/amd64) you can pull it from dockerhub and run in your environment.
@@ -66,7 +66,7 @@ dockerhub_limit_remaining_requests_time 21600
 dockerhub_limit_remaining_requests_total 99
 ```
 <br>
-To build the image in your local envorinment
+To build the image in your local environment
 
 ```bash
 git clone https://github.com/m47ik/drl-exporter.git

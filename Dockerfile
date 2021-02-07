@@ -7,13 +7,13 @@ COPY . /app
 WORKDIR /app/cmd/drl-exporter
 RUN apk update && apk add --no-cache gcc musl-dev git
 
-RUN go mod download
+# RUN go mod download
 
-RUN  go build -ldflags '-w -s' -a  -o /app/bin/drl-exporter
+RUN  go build -mod vendor -ldflags '-w -s' -a  -o /app/bin/drl-exporter
 
 # Final image
-FROM alpine:latest
-
+FROM scratch
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /app/bin/drl-exporter /drl-exporter
 
 CMD ["/drl-exporter"]

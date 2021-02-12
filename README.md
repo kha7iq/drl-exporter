@@ -30,7 +30,6 @@
 ---
 
 ## About
-<table>
 <tr>
 <td>
 <p>This exporter allows to retrieve the DockerHub rate limit counts as scrape target for Prometheus.

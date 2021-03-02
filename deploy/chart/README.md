@@ -8,7 +8,7 @@ You can install the chart by downloading this repository and running the helm in
 2. `cd drl-exporter`
 3. `helm install <release name> deploy/chart --namespace=<desired namespace>`
 
-By running the above command you will install the docker-hub-rate-limit-exporter into your cluster. It will expose the dockerhub limits in the prometheus format.
+By running the above command you will install the drl-exporter into your cluster. It will expose the dockerhub limits in the prometheus format.
 
 ## Uninstalling the Chart
 

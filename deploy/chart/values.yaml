@@ -50,14 +50,13 @@ securityContext:
 
 service:
     type: ClusterIP
-    port: 2121
 
 resources:
     limits:
         cpu: 500m
         memory: 128Mi
     requests:
-        cpu: 500m
+        cpu: 100m
         memory: 128Mi
 
 nodeSelector: {}

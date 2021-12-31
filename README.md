@@ -10,6 +10,8 @@
     <img alt="Docker Image Size (latest by date)" src="https://img.shields.io/docker/image-size/khaliq/drl-exporter?style=flat-square&logo=docker">
     <a href="https://hub.docker.com/r/khaliq/drl-exporter/tags">
     <img alt="Docker Image Version (latest by date)" src="https://img.shields.io/docker/v/khaliq/drl-exporter?style=flat-square&logo=docker">
+    <a href="https://hub.docker.com/r/khaliq/drl-exporter/tags">
+    <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/khaliq/drl-exporter">
     <a href="https://github.com/m47ik/drl-exporter/blob/master/LICENSE">
     <img alt="License" src="https://img.shields.io/github/license/m47ik/drl-exporter?style=flat-square&logo=github&logoColor=white">
     <a href="https://github.com/m47ik/drl-exporter/issues">

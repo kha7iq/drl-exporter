@@ -2,7 +2,7 @@ package collector
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -22,6 +22,7 @@ type Authentication struct {
 }
 
 var DockerMetrics = make(map[string]float64, 4)
+var DockerLabels = make(map[string]string, 1)
 
 // GetMetrics will save metrics in a float64 map
 func GetMetrics() {
@@ -49,6 +50,11 @@ func GetMetrics() {
 
 	limitHeader := lh.Header.Get("RateLimit-Limit")
 	remainHeader := lh.Header.Get("RateLimit-Remaining")
+	
+	sourceHeader := lh.Header.Get("Docker-RateLimit-Source")
+	if sourceHeader == "" {
+		l.Println("no header data for docker-ratelimit-source")
+	}
 
 	dockerLimit, err := convertHeaders(limitHeader)
 	if err != nil {
@@ -69,6 +75,7 @@ func GetMetrics() {
 		DockerMetrics["maxRequestTotalTime"] = dockerLimit[1]
 		DockerMetrics["remainingRequestTotal"] = dockerLimitRemain[0]
 		DockerMetrics["remainingRequestTotalTime"] = dockerLimitRemain[1]
+		DockerLabels["reqsource"] = sourceHeader
 	}
 
 }
@@ -116,7 +123,7 @@ func tokenBody(req *http.Request) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	tr, err := ioutil.ReadAll(rsp.Body)
+	tr, err := io.ReadAll(rsp.Body)
 	if err != nil {
 		return nil, err
 	}

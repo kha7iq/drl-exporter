@@ -56,16 +56,16 @@ curl localhost:2121/metrics
 ```text
 # HELP dockerhub_limit_max_requests_time Dockerhub rate limit maximum requests total time seconds
 # TYPE dockerhub_limit_max_requests_time gauge
-dockerhub_limit_max_requests_time 21600
+dockerhub_limit_max_requests_time 21600{reqsource="my-IP-or-ID"}
 # HELP dockerhub_limit_max_requests_total Dockerhub rate limit maximum requests in given time
 # TYPE dockerhub_limit_max_requests_total gauge
-dockerhub_limit_max_requests_total 100
+dockerhub_limit_max_requests_total 100{reqsource="my-IP-or-ID"}
 # HELP dockerhub_limit_remaining_requests_time Dockerhub rate limit remaining requests time seconds
 # TYPE dockerhub_limit_remaining_requests_time gauge
-dockerhub_limit_remaining_requests_time 21600
+dockerhub_limit_remaining_requests_time 21600{reqsource="my-IP-or-ID"}
 # HELP dockerhub_limit_remaining_requests_total Dockerhub rate limit remaining requests in given time
 # TYPE dockerhub_limit_remaining_requests_total gauge
-dockerhub_limit_remaining_requests_total 99
+dockerhub_limit_remaining_requests_total 99{reqsource="my-IP-or-ID"}
 ```
 <br>
 To build the image in your local environment
@@ -78,16 +78,29 @@ make docker
 
 ## Configuration Variables
 
-|          Variables         | Default Value  | Discription |
+|          Variables         | Default Value  | Description |
 | -------------------------- | :----------------: | :-------------: |
 | EXPORTER_PORT           |         2121        |        Server listening port        |
 | ENABLE_USER_AUTH   |         false️         |        **Must** be set to **true** if providing username        |
 | DOCKERHUB_USER            |         ""         |        Dockerhub account        |
 | DOCKERHUB_PASSWORD        |         ""         |        Account password        |
 | DOCKERHUB_REPO_IMAGE |         ratelimitpreview/test         |        custom repository/image        |
-
+| ENABLE_FILE_AUTH |         false         |        Load auth credentials from docker config file<br>at /$FILE_AUTH_DIR/config.json<br>Must leave auth through ENV empty.       |
+| FILE_AUTH_DIR |         /config         |        Directory where config.json resides       |
 <br>
 
+Example docker configuration config.json file below. <br>
+Note that a more extensive configuration can be handled, as long as at least an 'auths' exists for `https://index.docker.io/v1/`, with a username and password.
+```
+{
+  "auths": {
+    "https://index.docker.io/v1/": {
+      "username": "MyUsername",
+      "password": "MyPasswordOrToken"
+    }
+  }
+}
+```
 ## Local Demo
 You can find the complete docker-compose file along with a dashboard under deploy folder to test it out.
 

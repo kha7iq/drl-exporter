@@ -2,10 +2,10 @@
 
 FROM golang:1.19-alpine as build
 ENV CGO_ENABLED=0 GOOS=linux
+RUN apk update && apk add --no-cache gcc musl-dev git
 RUN mkdir /app
 COPY . /app
 WORKDIR /app/cmd/drl-exporter
-RUN apk update && apk add --no-cache gcc musl-dev git
 
 # RUN go mod download
 

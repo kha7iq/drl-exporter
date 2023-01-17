@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/docker/cli/cli/config"
+	"github.com/docker/cli/cli/config/types"
 	"github.com/m47ik/drl-exporter/internal/vars"
 )
 
@@ -34,14 +36,13 @@ func GetMetrics() {
 
 	tr, err := tokenRequest(tokenUrl)
 	if err != nil {
-		l.Printf("unable to send request %v\n",err)
+		l.Printf("unable to send request %v\n", err)
 	}
 
 	tb, err := tokenBody(tr)
 	if err != nil {
 		l.Printf("unable to get token data %v\n", err)
 	}
-
 
 	lh, err := getLimitHeaders(repoUrl, tb)
 	if err != nil {
@@ -50,7 +51,7 @@ func GetMetrics() {
 
 	limitHeader := lh.Header.Get("RateLimit-Limit")
 	remainHeader := lh.Header.Get("RateLimit-Remaining")
-	
+
 	sourceHeader := lh.Header.Get("Docker-RateLimit-Source")
 	if sourceHeader == "" {
 		l.Println("no header data for docker-ratelimit-source")
@@ -80,7 +81,6 @@ func GetMetrics() {
 
 }
 
-
 func convertHeaders(data string) ([]float64, error) {
 
 	rs := strings.Replace(data, "w=", "", 2)
@@ -106,15 +106,38 @@ func convertToFloat(xs []string) ([]float64, error) {
 	return xFloat, nil
 }
 
-func tokenRequest(url string ) (*http.Request, error){
+func tokenRequest(url string) (*http.Request, error) {
 	tr, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	if *vars.EnableUserAuth == true {
+	if *vars.EnableFileAuth && !*vars.EnableUserAuth {
+		dockerfilevars, err := getDockerHubAuth()
+		if err != nil {
+			return nil, err
+		}
+		tr.SetBasicAuth(dockerfilevars.Username, dockerfilevars.Password)
+	}
+	if *vars.EnableUserAuth {
 		tr.SetBasicAuth(*vars.Username, *vars.Password)
 	}
 	return tr, nil
+}
+
+func getDockerHubAuth() (types.AuthConfig, error) {
+	lauth := log.New(os.Stdout, "drl-exporter-dockerauth ", log.LstdFlags)
+	var dockerConfDir = *vars.FileAuthDir
+	var dockerRegistry = "https://index.docker.io/v1/"
+	dockerConfig, err := config.Load(dockerConfDir)
+	if err != nil {
+		lauth.Printf("Unable to load docker configuration from config file '%v/config.json'\n", dockerConfDir)
+		return types.AuthConfig{}, err
+	} else {
+		if !dockerConfig.ContainsAuth() {
+			lauth.Printf("No 'auths' found in configuration file '%v/config.json'\n", dockerConfDir)
+		}
+	}
+	return dockerConfig.GetAuthConfig(dockerRegistry)
 }
 
 func tokenBody(req *http.Request) ([]byte, error) {
@@ -132,7 +155,7 @@ func tokenBody(req *http.Request) ([]byte, error) {
 
 }
 
-func getLimitHeaders(url string, td []byte) (*http.Response,error) {
+func getLimitHeaders(url string, td []byte) (*http.Response, error) {
 	c := &http.Client{Timeout: 10 * time.Second}
 	var auth = Authentication{}
 

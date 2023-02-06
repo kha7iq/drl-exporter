@@ -1,10 +1,10 @@
 module github.com/m47ik/drl-exporter
 
-go 1.18
+go 1.20
 
 require (
-	github.com/docker/cli v20.10.22+incompatible
-	github.com/nicholasjackson/env v0.6.0
+	github.com/docker/cli v23.0.0+incompatible
+	github.com/nicholasjackson/env v0.6.1
 	github.com/prometheus/client_golang v1.14.0
 )
 

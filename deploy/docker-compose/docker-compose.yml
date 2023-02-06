@@ -9,7 +9,7 @@ services:
       - DOCKERHUB_PASSWORD=password
       #- ENABLE_USER_AUTH=true
     ports:
-      - "8881"
+      - "8881:8881"
 
   prometheus:
     image: prom/prometheus:latest

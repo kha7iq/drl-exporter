@@ -1,6 +1,6 @@
 # Build
 
-FROM golang:1.15-alpine as build
+FROM golang:1.19-alpine as build
 ENV CGO_ENABLED=0 GOOS=linux
 RUN mkdir /app
 COPY . /app

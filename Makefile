@@ -1,8 +1,9 @@
 IMAGE_NAME=drl-exporter
-IMAGE_VERSION=2.0
+IMAGE_VERSION=2.1.0
 
 .PHONY: docker
 docker:
+	go mod vendor
 	docker build -t $(IMAGE_NAME) .
 	docker tag $(IMAGE_NAME):latest $(IMAGE_NAME):$(IMAGE_VERSION)
 

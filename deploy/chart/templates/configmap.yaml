@@ -8,3 +8,5 @@ data:
   exporter-port: {{ default "2121" .Values.config.exporterPort | quote }}
   enable-user-auth: {{ default "false" .Values.config.enableUserAuth | quote }}
   dockerhub-username: {{ default "" .Values.config.dockerhubUsername | quote }}
+  enable-file-auth: {{ default "false" .Values.config.enableFileAuth | quote }}
+  file-auth-dir: {{ default "/config" .Values.config.fileAuthDir | quote }}

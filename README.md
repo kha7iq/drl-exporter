@@ -56,16 +56,16 @@ curl localhost:2121/metrics
 ```text
 # HELP dockerhub_limit_max_requests_time Dockerhub rate limit maximum requests total time seconds
 # TYPE dockerhub_limit_max_requests_time gauge
-dockerhub_limit_max_requests_time 21600
+dockerhub_limit_max_requests_time 21600{reqsource="my-IP-or-ID"}
 # HELP dockerhub_limit_max_requests_total Dockerhub rate limit maximum requests in given time
 # TYPE dockerhub_limit_max_requests_total gauge
-dockerhub_limit_max_requests_total 100
+dockerhub_limit_max_requests_total 100{reqsource="my-IP-or-ID"}
 # HELP dockerhub_limit_remaining_requests_time Dockerhub rate limit remaining requests time seconds
 # TYPE dockerhub_limit_remaining_requests_time gauge
-dockerhub_limit_remaining_requests_time 21600
+dockerhub_limit_remaining_requests_time 21600{reqsource="my-IP-or-ID"}
 # HELP dockerhub_limit_remaining_requests_total Dockerhub rate limit remaining requests in given time
 # TYPE dockerhub_limit_remaining_requests_total gauge
-dockerhub_limit_remaining_requests_total 99
+dockerhub_limit_remaining_requests_total 99{reqsource="my-IP-or-ID"}
 ```
 <br>
 To build the image in your local environment
@@ -78,16 +78,29 @@ make docker
 
 ## Configuration Variables
 
-|          Variables         | Default Value  | Discription |
+|          Variables         | Default Value  | Description |
 | -------------------------- | :----------------: | :-------------: |
 | EXPORTER_PORT           |         2121        |        Server listening port        |
 | ENABLE_USER_AUTH   |         false️         |        **Must** be set to **true** if providing username        |
 | DOCKERHUB_USER            |         ""         |        Dockerhub account        |
 | DOCKERHUB_PASSWORD        |         ""         |        Account password        |
 | DOCKERHUB_REPO_IMAGE |         ratelimitpreview/test         |        custom repository/image        |
-
+| ENABLE_FILE_AUTH |         false         |        Load auth credentials from docker config file<br>at /$FILE_AUTH_DIR/config.json<br>Must leave auth through ENV empty.       |
+| FILE_AUTH_DIR |         /config         |        Directory where config.json resides       |
 <br>
 
+Example docker configuration config.json file below. <br>
+Note that a more extensive configuration can be handled, as long as at least an 'auths' exists for `https://index.docker.io/v1/`, with a username and password.
+```
+{
+  "auths": {
+    "https://index.docker.io/v1/": {
+      "username": "MyUsername",
+      "password": "MyPasswordOrToken"
+    }
+  }
+}
+```
 ## Local Demo
 You can find the complete docker-compose file along with a dashboard under deploy folder to test it out.
 
@@ -122,17 +135,20 @@ config.dockerhubPassword=<password>,config.enableUserAuth=true  --namespace=<nam
 ```
 ## Chart Configuration
 
-| Parameter                         | Description                                                                                                       | Default |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------- |
-| `config.exporterPort`             | Port the deployment exposes                                                                                       | `2121`    |
-| `config.enableUserAuth`        | Enable metrics for specific dockerhub account                                                                                        | `false`     |
-| `config.dockerhubUsername`        | Dockerhub Username                                                                                    | `nil`   |
-| `config.dockerhubPassword`        | Dockerhub Password                                                                | `nil`   |
-| `serviceMonitor.enabled`          | If true, creates a ServiceMonitor instance                                                                        | `false` |
-| `serviceMonitor.additionalLabels` | Configure additional labels for the servicemonitor                                                                | `{}`    |
-| `serviceMonitor.namespace`        | The namespace into which the servicemonitor is deployed. | `same as chart namespace`   |
-| `serviceMonitor.interval`         | The interval with which prometheus will scrape                                                                    | `30s`   |
-| `serviceMonitor.scrapeTimeout`    | The timeout for the scrape request                                                                                | `10s`   |
+| Parameter                         | Description                                                                                                                 | Default                   |
+|-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------|---------------------------|
+| `config.exporterPort`             | Port the deployment exposes                                                                                                 | `2121`                    |
+| `config.enableUserAuth`           | Enable metrics for specific dockerhub account                                                                               | `false`                   |
+| `config.dockerhubUsername`        | Dockerhub Username                                                                                                          | `""`                      |
+| `config.dockerhubPassword`        | Dockerhub Password                                                                                                          | `nil`                     |
+| `config.enableFileAuth`           | Enable authentication through k8s secret, type `kubernetes.io/dockerconfigjson`. Only effective if enableUserAuth is false. | `false`                   |
+| `config.fileAuthDir`              | Path to mount the config.json in the pod. Only effective if enableFileAuth is true.                                         | `/config`                 |
+| `config.fileAuthSecretName`       | Name of existing k8s `kubernetes.io/dockerconfigjson` secret to use. Only effective if enableFileAuth is true.              | `dockerhub`               |
+| `serviceMonitor.enabled`          | If true, creates a ServiceMonitor instance                                                                                  | `false`                   |
+| `serviceMonitor.additionalLabels` | Configure additional labels for the servicemonitor                                                                          | `{}`                      |
+| `serviceMonitor.namespace`        | The namespace into which the servicemonitor is deployed.                                                                    | `same as chart namespace` |
+| `serviceMonitor.interval`         | The interval with which prometheus will scrape                                                                              | `30s`                     |
+| `serviceMonitor.scrapeTimeout`    | The timeout for the scrape request                                                                                          | `10s`                     |
 
 ## TODO
 - [x] Tests 

@@ -1,11 +1,13 @@
 # Default values for drl-exporter.
 
-
 config:
-    exporterPort: 2121 ## Change metrics server listen port
-    enableUserAuth: false ## to enable auth with user change to true
+    exporterPort: ## Change metrics server listen port
+    enableUserAuth: ## Boolean, set to true to enable auth with user
     dockerhubUsername: ## dockerhub username here
-    dockerhubPassword: ## ockerhub password here
+    dockerhubPassword: ## dockerhub password here
+    enableFileAuth: ## Boolean, set to true to enable auth through k8s secret of type 'kubernetes.io/dockerconfigjson'. Only effective when enableUserAuth is false.
+    fileAuthDir: ## Path to mount the config.json in the pod. Only effective if enableFileAuth is true. Defaults to '/config'.
+    fileAuthSecretName: ## Name of existing k8s `kubernetes.io/dockerconfigjson` secret to use. Only effective if enableFileAuth is true. Defaults to 'dockerhub', must be in same namespace.
 
 replicaCount: 1
 

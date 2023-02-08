@@ -49,17 +49,25 @@ spec:
             timeoutSeconds: 5
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.config.enableFileAuth }}
+          volumeMounts:
+          - name: {{ default "dockerhub" .Values.config.fileAuthSecretName }}
+            readOnly: true
+            mountPath: {{ default "/config" .Values.config.fileAuthDir }}
+          {{- end}}
           env:
             - name: DOCKERHUB_USER
               valueFrom:
                 configMapKeyRef:
                   name: {{ include "drl-exporter.fullname" . }}-configmap
                   key: dockerhub-username
+            {{- if .Values.config.dockerhubPassword }}
             - name: DOCKERHUB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "drl-exporter.fullname" . }}-secret
                   key: dockerhub-password
+            {{- end }}
             - name: ENABLE_USER_AUTH
               valueFrom:
                 configMapKeyRef:
@@ -70,6 +78,25 @@ spec:
                 configMapKeyRef:
                   name: {{ include "drl-exporter.fullname" . }}-configmap
                   key: exporter-port
+            - name: ENABLE_FILE_AUTH
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "drl-exporter.fullname" . }}-configmap
+                  key: enable-file-auth
+      {{- if .Values.config.enableFileAuth }}
+            - name: FILE_AUTH_DIR
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "drl-exporter.fullname" . }}-configmap
+                  key: file-auth-dir
+      volumes:
+        - name: {{ default "dockerhub" .Values.config.fileAuthSecretName }}
+          secret:
+            secretName: {{ default "dockerhub" .Values.config.fileAuthSecretName }}
+            items:
+              - key: .dockerconfigjson
+                path: config.json
+      {{- end}}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

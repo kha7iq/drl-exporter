@@ -11,6 +11,12 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+var (
+	version           string
+	buildDate         string
+	commitSha		  string
+)
+
 func main() {
 	if err := env.Parse(); err != nil {
 		log.Println(err)
@@ -29,6 +35,7 @@ func main() {
 	prom.CollectMetrics()
 
 	mux.Handle("/metrics", promhttp.Handler())
+	log.Printf("DRL exporter Version %s, Commit %s, BuildDate %s\n", version, commitSha, buildDate)
 	log.Printf("Starting server on port %v\n", *vars.BindAddress)
 
 	err := s.ListenAndServe()

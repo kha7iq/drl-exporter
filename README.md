@@ -43,10 +43,16 @@ You can use your Docker Hub credentials to authenticate, otherwise an anonymous 
 <p align="center"><img width=70% src="https://raw.githubusercontent.com/m47ik/drl-exporter/master/.github/img/dashboard.png"></p>
 
 ## Usage
-Multi Arch docker images are available (arm/arm64/amd64) you can pull it from dockerhub and run in your environment.
+Multi Arch docker images are available (arm64/amd64) you can pull it from dockerhub/github and run in your environment.
 
 ```bash
+# 
 docker pull khaliq/drl-exporter:latest
+docker pull ghcr.io/kha7iq/drl-exporter:latest
+
+# ARM 
+docker pull ghcr.io/kha7iq/drl-exporter:v2.1.0-arm64
+docker pull khaliq/drl-exporter:v2.1.0-arm64
 
 docker run -d -p 2121:2121  khaliq/drl-exporter:latest
 
@@ -56,16 +62,16 @@ curl localhost:2121/metrics
 ```text
 # HELP dockerhub_limit_max_requests_time Dockerhub rate limit maximum requests total time seconds
 # TYPE dockerhub_limit_max_requests_time gauge
-dockerhub_limit_max_requests_time 21600{reqsource="my-IP-or-ID"}
+dockerhub_limit_max_requests_time 21600{reqsource="10.50.00.0"}
 # HELP dockerhub_limit_max_requests_total Dockerhub rate limit maximum requests in given time
 # TYPE dockerhub_limit_max_requests_total gauge
-dockerhub_limit_max_requests_total 100{reqsource="my-IP-or-ID"}
+dockerhub_limit_max_requests_total 100{reqsource="10.50.00.0"}
 # HELP dockerhub_limit_remaining_requests_time Dockerhub rate limit remaining requests time seconds
 # TYPE dockerhub_limit_remaining_requests_time gauge
-dockerhub_limit_remaining_requests_time 21600{reqsource="my-IP-or-ID"}
+dockerhub_limit_remaining_requests_time 21600{reqsource="10.50.00.0"}
 # HELP dockerhub_limit_remaining_requests_total Dockerhub rate limit remaining requests in given time
 # TYPE dockerhub_limit_remaining_requests_total gauge
-dockerhub_limit_remaining_requests_total 99{reqsource="my-IP-or-ID"}
+dockerhub_limit_remaining_requests_total 99{reqsource="10.50.00.0"}
 ```
 <br>
 To build the image in your local environment

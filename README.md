@@ -93,6 +93,7 @@ make docker
 | DOCKERHUB_REPO_IMAGE |         ratelimitpreview/test         |        custom repository/image        |
 | ENABLE_FILE_AUTH |         false         |        Load auth credentials from docker config file<br>at /$FILE_AUTH_DIR/config.json<br>Must leave auth through ENV empty.       |
 | FILE_AUTH_DIR |         /config         |        Directory where config.json resides       |
+| ENABLE_IPV6   |         false           | Use IPv6 instead of IPv4 when fetching rate limits |
 <br>
 
 Example docker configuration config.json file below. <br>

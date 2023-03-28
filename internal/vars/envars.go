@@ -12,4 +12,5 @@ var (
 	EnableUserAuth  = env.Bool("ENABLE_USER_AUTH", false, false, "Enable metrics for users")
 	EnableFileAuth  = env.Bool("ENABLE_FILE_AUTH", false, false, "Enable authentication through docker configuration file 'config.json'")
 	FileAuthDir     = env.String("FILE_AUTH_DIR", false, "/config", "Directory to load 'config.json' docker configuration from")
+	EnableIPv6      = env.Bool("ENABLE_IPV6", false, false, "Use IPv6 instead of IPv4")
 )

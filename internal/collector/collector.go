@@ -29,9 +29,17 @@ var DockerLabels = make(map[string]string, 1)
 // GetMetrics will save metrics in a float64 map
 func GetMetrics() {
 	l := log.New(os.Stdout, "drl-exporter ", log.LstdFlags)
-	tokenUrl := "https://auth.docker.io/token?service=" +
+
+	tokenBaseUrl := "https://auth.docker.io"
+	repoBaseUrl := "https://registry-1.docker.io"
+	if *vars.EnableIPv6 {
+		tokenBaseUrl = "https://auth.ipv6.docker.com"
+		repoBaseUrl = "https://registry.ipv6.docker.com"
+	}
+
+	tokenUrl := tokenBaseUrl + "/token?service=" +
 		"registry.docker.io&scope=repository:" + *vars.DockerRepoImage + ":pull"
-	repoUrl := "https://registry-1.docker.io/v2/" +
+	repoUrl := repoBaseUrl + "/v2/" +
 		"registry.docker.io&scope=repository:" + *vars.DockerRepoImage + "/manifests/latest"
 
 	tr, err := tokenRequest(tokenUrl)

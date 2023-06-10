@@ -1,4 +1,4 @@
-module github.com/m47ik/drl-exporter
+module github.com/kha7iq/drl-exporter
 
 go 1.20
 

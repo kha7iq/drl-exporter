@@ -4,7 +4,7 @@
 
 You can install the chart by downloading this repository and running the helm install command. Follow the steps below:
 
-1. `git clone https://github.com/m47ik/drl-exporter.git`
+1. `git clone https://github.com/kha7iq/drl-exporter.git`
 2. `cd drl-exporter`
 3. `helm install <release name> deploy/chart --namespace=<desired namespace>`
 

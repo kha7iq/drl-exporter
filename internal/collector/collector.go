@@ -12,7 +12,7 @@ import (
 
 	"github.com/docker/cli/cli/config"
 	"github.com/docker/cli/cli/config/types"
-	"github.com/m47ik/drl-exporter/internal/vars"
+	"github.com/kha7iq/drl-exporter/internal/vars"
 )
 
 // Authentication struct is used for saving token data returned by dockerhub

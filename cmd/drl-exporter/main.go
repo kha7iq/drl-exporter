@@ -1,20 +1,21 @@
 package main
 
 import (
-	prom "github.com/m47ik/drl-exporter/internal/prom"
-	"github.com/m47ik/drl-exporter/internal/vars"
-	"github.com/nicholasjackson/env"
 	"log"
 	"net/http"
 	"time"
+
+	prom "github.com/kha7iq/drl-exporter/internal/prom"
+	"github.com/kha7iq/drl-exporter/internal/vars"
+	"github.com/nicholasjackson/env"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var (
-	version           string
-	buildDate         string
-	commitSha		  string
+	version   string
+	buildDate string
+	commitSha string
 )
 
 func main() {
@@ -29,7 +30,6 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
 	}
-
 
 	prom.RegisterCollectors()
 	prom.CollectMetrics()

@@ -1,6 +1,6 @@
 <h2 align="center">
   <br>
-  <p align="center"><img width=30% src="https://raw.githubusercontent.com/m47ik/drl-exporter/master/.github/img/logo.png"></p>
+  <p align="center"><img width=30% src="https://raw.githubusercontent.com/kha7iq/drl-exporter/master/.github/img/logo.png"></p>
 </h2>
 
 <h4 align="center">Dockerhub rate limit prometheus metrics exporter </h4>
@@ -12,10 +12,10 @@
     <img alt="Docker Image Version (latest by date)" src="https://img.shields.io/docker/v/khaliq/drl-exporter?style=flat-square&logo=docker">
     <a href="https://hub.docker.com/r/khaliq/drl-exporter/tags">
     <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/khaliq/drl-exporter">
-    <a href="https://github.com/m47ik/drl-exporter/blob/master/LICENSE">
-    <img alt="License" src="https://img.shields.io/github/license/m47ik/drl-exporter?style=flat-square&logo=github&logoColor=white">
-    <a href="https://github.com/m47ik/drl-exporter/issues">
-    <img alt="GitHub issues" src="https://img.shields.io/github/issues/m47ik/drl-exporter?style=flat-square&logo=github&logoColor=white">
+    <a href="https://github.com/kha7iq/drl-exporter/blob/master/LICENSE">
+    <img alt="License" src="https://img.shields.io/github/license/kha7iq/drl-exporter?style=flat-square&logo=github&logoColor=white">
+    <a href="https://github.com/kha7iq/drl-exporter/issues">
+    <img alt="GitHub issues" src="https://img.shields.io/github/issues/kha7iq/drl-exporter?style=flat-square&logo=github&logoColor=white">
 </p>
 
 <p align="center">
@@ -40,7 +40,7 @@ RateLimit-Remaining and RateLimit-Reset into a Gauge metric.
 You can use your Docker Hub credentials to authenticate, otherwise an anonymous token is used.</p>
 
 ## Screenshot
-<p align="center"><img width=70% src="https://raw.githubusercontent.com/m47ik/drl-exporter/master/.github/img/dashboard.png"></p>
+<p align="center"><img width=70% src="https://raw.githubusercontent.com/kha7iq/drl-exporter/master/.github/img/dashboard.png"></p>
 
 ## Usage
 Multi Arch docker images are available (arm64/amd64) you can pull it from dockerhub/github and run in your environment.
@@ -77,7 +77,7 @@ dockerhub_limit_remaining_requests_total 99{reqsource="10.50.00.0"}
 To build the image in your local environment
 
 ```bash
-git clone https://github.com/m47ik/drl-exporter.git
+git clone https://github.com/kha7iq/drl-exporter.git
 cd drl-exporter
 make docker
 ```
@@ -127,7 +127,7 @@ Exporter     | http://localhost:8881
 
 ## Helm Chart
 
-1. `git clone https://github.com/m47ik/drl-exporter.git`
+1. `git clone https://github.com/kha7iq/drl-exporter.git`
 2. `cd drl-exporter`
 3. `helm install <release name> deploy/chart --namespace=<desired namespace>`
 

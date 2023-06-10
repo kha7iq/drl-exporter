@@ -1,9 +1,10 @@
 package prom
 
 import (
-	"github.com/m47ik/drl-exporter/internal/collector"
-	"github.com/prometheus/client_golang/prometheus"
 	"time"
+
+	"github.com/kha7iq/drl-exporter/internal/collector"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 var (
@@ -33,7 +34,7 @@ var (
 	)
 )
 
-func RegisterCollectors()  {
+func RegisterCollectors() {
 	prometheus.Unregister(prometheus.NewGoCollector())
 	prometheus.MustRegister(maxRequestTotal)
 	prometheus.MustRegister(maxRequestTotalTime)

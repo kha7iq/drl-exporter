@@ -1,7 +1,7 @@
 apiVersion: v2
 name: drl-exporter
 description: Export docker hub rate limit metrics in prometheus format.
-icon: https://raw.githubusercontent.com/m47ik/drl-exporter/master/.github/img/logo.png
+icon: https://raw.githubusercontent.com/kha7iq/drl-exporter/master/.github/img/logo.png
 
 
 type: application 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/kha7iq/drl-exporter/internal/collector"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
 )
 
 var (
@@ -35,7 +36,7 @@ var (
 )
 
 func RegisterCollectors() {
-	prometheus.Unregister(prometheus.NewGoCollector())
+	prometheus.Unregister(collectors.NewGoCollector())
 	prometheus.MustRegister(maxRequestTotal)
 	prometheus.MustRegister(maxRequestTotalTime)
 	prometheus.MustRegister(remainingRequestTotal)

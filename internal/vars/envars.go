@@ -13,4 +13,5 @@ var (
 	EnableFileAuth  = env.Bool("ENABLE_FILE_AUTH", false, false, "Enable authentication through docker configuration file 'config.json'")
 	FileAuthDir     = env.String("FILE_AUTH_DIR", false, "/config", "Directory to load 'config.json' docker configuration from")
 	EnableIPv6      = env.Bool("ENABLE_IPV6", false, false, "Use IPv6 instead of IPv4")
+	RequestInterval = env.String("REQUEST_INTERVAL", false, "15", "Specify the interval in seconds at which requests should be sent to Dockerhub")
 )

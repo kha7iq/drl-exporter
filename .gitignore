@@ -104,3 +104,4 @@ fabric.properties
 
 # Ignore vendor directory
 vendor/
+_local

@@ -54,8 +54,8 @@ docker pull khaliq/drl-exporter:latest
 docker pull ghcr.io/kha7iq/drl-exporter:latest
 
 # ARM 
-docker pull ghcr.io/kha7iq/drl-exporter:v2.1.0-arm64
-docker pull khaliq/drl-exporter:v2.1.0-arm64
+docker pull ghcr.io/kha7iq/drl-exporter:v2.1.3-arm64
+docker pull khaliq/drl-exporter:v2.1.3-arm64
 
 docker run -d -p 2121:2121  khaliq/drl-exporter:latest
 
@@ -135,12 +135,12 @@ Note that a more extensive configuration can be handled, as long as at least an 
 ```
 
 
-To build the image in your local environment
-
-]
-
-
-
+- To build the image in your local environment
+```bash
+git clone https://github.com/kha7iq/drl-exporter.git
+cd drl-exporter
+make docker
+```
 
 ## Local Demo
 You can find the complete docker-compose file along with a dashboard under deploy folder to test it out.
@@ -159,8 +159,6 @@ Exporter     | http://localhost:8881
 
 <br>
 
-
-             |
 
 ## TODO
 - [x] Tests 

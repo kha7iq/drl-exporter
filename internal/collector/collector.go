@@ -2,6 +2,7 @@ package collector
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -23,165 +24,172 @@ type Authentication struct {
 	IssuedAt    time.Time `json:"issued_at"`
 }
 
-var DockerMetrics = make(map[string]float64, 4)
-var DockerLabels = make(map[string]string, 1)
+var (
+	DockerMetrics = make(map[string]float64, 4)
+	DockerLabels  = make(map[string]string, 1)
+)
+
+// HTTPClient is an interface for making HTTP requests.
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
 
 // GetMetrics will save metrics in a float64 map
 func GetMetrics() {
-	l := log.New(os.Stdout, "drl-exporter ", log.LstdFlags)
+	logger := log.New(os.Stdout, "drl-exporter ", log.LstdFlags)
 
-	tokenBaseUrl := "https://auth.docker.io"
-	repoBaseUrl := "https://registry-1.docker.io"
+	tokenURL, repoURL := buildURLs()
+	tokenReq, err := createTokenRequest(tokenURL, loadDockerHubAuth)
+	if err != nil {
+		logger.Printf("unable to create token request: %v\n", err)
+		return
+	}
+
+	client := &http.Client{}
+	tokenBody, err := executeRequest(client, tokenReq)
+	if err != nil {
+		logger.Printf("unable to get valid token: %v\n", err)
+		return
+	}
+
+	response, err := fetchLimitHeaders(client, repoURL, tokenBody)
+	if err != nil {
+		logger.Printf("unexpected response from docker: %v\n", err)
+		return
+	}
+
+	processHeaders(response, logger)
+}
+
+func buildURLs() (string, string) {
+	tokenBaseURL := "https://auth.docker.io"
+	repoBaseURL := "https://registry-1.docker.io"
 	if *vars.EnableIPv6 {
-		tokenBaseUrl = "https://auth.ipv6.docker.com"
-		repoBaseUrl = "https://registry.ipv6.docker.com"
+		tokenBaseURL = "https://auth.ipv6.docker.com"
+		repoBaseURL = "https://registry.ipv6.docker.com"
 	}
 
-	tokenUrl := tokenBaseUrl + "/token?service=" +
-		"registry.docker.io&scope=repository:" + *vars.DockerRepoImage + ":pull"
-	repoUrl := repoBaseUrl + "/v2/" +
-		"registry.docker.io&scope=repository:" + *vars.DockerRepoImage + "/manifests/latest"
+	tokenURL := fmt.Sprintf("%s/token?service=registry.docker.io&scope=repository:%s:pull", tokenBaseURL, *vars.DockerRepoImage)
+	repoURL := fmt.Sprintf("%s/v2/registry.docker.io&scope=repository:%s/manifests/latest", repoBaseURL, *vars.DockerRepoImage)
 
-	tr, err := tokenRequest(tokenUrl)
+	return tokenURL, repoURL
+}
+
+// Inject loadDockerHubAuth as a dependency
+func createTokenRequest(url string, loadAuthFunc func() (types.AuthConfig, error)) (*http.Request, error) {
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		l.Printf("unable to send request %v\n", err)
+		return nil, err
 	}
 
-	tb, err := tokenBody(tr)
+	if *vars.EnableFileAuth && !*vars.EnableUserAuth {
+		authConfig, err := loadAuthFunc()
+		if err != nil {
+			return nil, err
+		}
+		req.SetBasicAuth(authConfig.Username, authConfig.Password)
+	} else if *vars.EnableUserAuth {
+		req.SetBasicAuth(*vars.Username, *vars.Password)
+	}
+
+	return req, nil
+}
+
+func loadDockerHubAuth() (types.AuthConfig, error) {
+	logger := log.New(os.Stdout, "drl-exporter-dockerauth ", log.LstdFlags)
+	dockerConfDir := *vars.FileAuthDir
+	dockerConfig, err := config.Load(dockerConfDir)
 	if err != nil {
-		l.Printf("unable to get token data %v\n", err)
+		logger.Printf("Unable to load docker configuration from config file '%v/config.json'\n", dockerConfDir)
+		return types.AuthConfig{}, err
 	}
 
-	lh, err := getLimitHeaders(repoUrl, tb)
+	if !dockerConfig.ContainsAuth() {
+		logger.Printf("No 'auths' found in configuration file '%v/config.json'\n", dockerConfDir)
+	}
+
+	return dockerConfig.GetAuthConfig("https://index.docker.io/v1/")
+}
+
+func executeRequest(client HTTPClient, req *http.Request) ([]byte, error) {
+	resp, err := client.Do(req)
 	if err != nil {
-		l.Printf("unexpected response from docker %v\n", err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
 	}
 
-	limitHeader := lh.Header.Get("RateLimit-Limit")
-	remainHeader := lh.Header.Get("RateLimit-Remaining")
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("request failed with status code %d: %s", resp.StatusCode, string(body))
+	}
 
-	sourceHeader := lh.Header.Get("Docker-RateLimit-Source")
+	return body, nil
+}
+
+func fetchLimitHeaders(client HTTPClient, url string, tokenBody []byte) (*http.Response, error) {
+	var auth Authentication
+
+	if err := json.Unmarshal(tokenBody, &auth); err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("HEAD", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Authorization", "Bearer "+auth.Token)
+	return client.Do(req)
+}
+
+func processHeaders(resp *http.Response, logger *log.Logger) {
+	limitHeader := resp.Header.Get("RateLimit-Limit")
+	remainHeader := resp.Header.Get("RateLimit-Remaining")
+	sourceHeader := resp.Header.Get("Docker-RateLimit-Source")
+
 	if sourceHeader == "" {
-		l.Println("no header data for docker-ratelimit-source")
+		logger.Println("no header data for docker-ratelimit-source")
 	}
 
-	dockerLimit, err := convertHeaders(limitHeader)
+	dockerLimit, err := parseHeaderValues(limitHeader)
 	if err != nil {
-		l.Println("no header data for limit")
-	}
-	dockerLimitRemain, err := convertHeaders(remainHeader)
-	if err != nil {
-		l.Println("no header data for remaining limit")
+		logger.Println("no header data for limit")
+		return
 	}
 
-	switch {
-	case len(dockerLimit) <= 0:
+	dockerLimitRemain, err := parseHeaderValues(remainHeader)
+	if err != nil {
+		logger.Println("no header data for remaining limit")
 		return
-	case len(dockerLimitRemain) <= 0:
-		return
-	default:
+	}
+
+	if len(dockerLimit) > 0 && len(dockerLimitRemain) > 0 {
 		DockerMetrics["maxRequestTotal"] = dockerLimit[0]
 		DockerMetrics["maxRequestTotalTime"] = dockerLimit[1]
 		DockerMetrics["remainingRequestTotal"] = dockerLimitRemain[0]
 		DockerMetrics["remainingRequestTotalTime"] = dockerLimitRemain[1]
 		DockerLabels["reqsource"] = sourceHeader
 	}
-
 }
 
-func convertHeaders(data string) ([]float64, error) {
-
-	rs := strings.Replace(data, "w=", "", 2)
-	ss := strings.Split(rs, ";")
-	xFloat, err := convertToFloat(ss)
-	if err != nil {
-		return nil, err
-	}
-	return xFloat, nil
+func parseHeaderValues(data string) ([]float64, error) {
+	cleanedData := strings.ReplaceAll(data, "w=", "")
+	stringValues := strings.Split(cleanedData, ";")
+	return convertStringsToFloats(stringValues)
 }
 
-func convertToFloat(xs []string) ([]float64, error) {
-	var xFloat []float64
-	for i := range xs {
-		str := xs[i]
-		in, err := strconv.ParseFloat(str, 64)
+func convertStringsToFloats(strings []string) ([]float64, error) {
+	var floatValues []float64
+	for _, str := range strings {
+		value, err := strconv.ParseFloat(str, 64)
 		if err != nil {
 			return nil, err
 		}
-		xFloat = append(xFloat, in)
+		floatValues = append(floatValues, value)
 	}
-
-	return xFloat, nil
-}
-
-func tokenRequest(url string) (*http.Request, error) {
-	tr, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-	if *vars.EnableFileAuth && !*vars.EnableUserAuth {
-		dockerfilevars, err := getDockerHubAuth()
-		if err != nil {
-			return nil, err
-		}
-		tr.SetBasicAuth(dockerfilevars.Username, dockerfilevars.Password)
-	}
-	if *vars.EnableUserAuth {
-		tr.SetBasicAuth(*vars.Username, *vars.Password)
-	}
-	return tr, nil
-}
-
-func getDockerHubAuth() (types.AuthConfig, error) {
-	lauth := log.New(os.Stdout, "drl-exporter-dockerauth ", log.LstdFlags)
-	var dockerConfDir = *vars.FileAuthDir
-	var dockerRegistry = "https://index.docker.io/v1/"
-	dockerConfig, err := config.Load(dockerConfDir)
-	if err != nil {
-		lauth.Printf("Unable to load docker configuration from config file '%v/config.json'\n", dockerConfDir)
-		return types.AuthConfig{}, err
-	} else {
-		if !dockerConfig.ContainsAuth() {
-			lauth.Printf("No 'auths' found in configuration file '%v/config.json'\n", dockerConfDir)
-		}
-	}
-	return dockerConfig.GetAuthConfig(dockerRegistry)
-}
-
-func tokenBody(req *http.Request) ([]byte, error) {
-	c := http.Client{}
-	rsp, err := c.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	tr, err := io.ReadAll(rsp.Body)
-	if err != nil {
-		return nil, err
-	}
-	rsp.Body.Close()
-	return tr, nil
-
-}
-
-func getLimitHeaders(url string, td []byte) (*http.Response, error) {
-	c := &http.Client{Timeout: 10 * time.Second}
-	var auth = Authentication{}
-
-	tkErr := json.Unmarshal(td, &auth)
-	if tkErr != nil {
-		return nil, tkErr
-	}
-
-	lmr, err := http.NewRequest("HEAD", url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	lmr.Header.Add("Authorization", "Bearer "+auth.Token)
-	lr, err := c.Do(lmr)
-	if err != nil {
-		return nil, err
-	}
-
-	return lr, nil
+	return floatValues, nil
 }

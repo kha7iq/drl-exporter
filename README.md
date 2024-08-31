@@ -45,6 +45,9 @@ You can use your Docker Hub credentials to authenticate, otherwise an anonymous 
 ## Usage
 Multi Arch docker images are available (arm64/amd64) you can pull it from dockerhub/github and run in your environment.
 
+
+## Docker
+
 ```bash
 # 
 docker pull khaliq/drl-exporter:latest
@@ -58,6 +61,33 @@ docker run -d -p 2121:2121  khaliq/drl-exporter:latest
 
 curl localhost:2121/metrics
 ```
+
+## Kubernetes
+
+1. Add chart repository
+```
+helm repo add lmno https://charts.lmno.pk
+helm repo update
+```
+2. Install the chart
+```
+helm install drl-exporter lmno/drl-exporter
+```
+
+### Installing the Chart with Username and Password
+Customize the chart by setting values at runtime or in the `values.yaml` file. 
+
+To use the exporter with a username and password, ensure `enableUserAuth=true` is set.
+
+Refer to the [chart repository](https://github.com/kha7iq/charts/tree/main/charts/drl-exporter) for all configuration options.
+
+```bash
+helm install drl-exporter lmno/drl-exporter \
+ --set exporter.auth.enabled=true \
+ --set exporter.auth.dockerHubUsername=<username> \
+ --set exporter.auth.dockerHubPassword=<password>
+```
+
 ### Output
 ```text
 # HELP dockerhub_limit_max_requests_time Dockerhub rate limit maximum requests total time seconds
@@ -74,13 +104,7 @@ dockerhub_limit_remaining_requests_time 21600{reqsource="10.50.00.0"}
 dockerhub_limit_remaining_requests_total 99{reqsource="10.50.00.0"}
 ```
 <br>
-To build the image in your local environment
 
-```bash
-git clone https://github.com/kha7iq/drl-exporter.git
-cd drl-exporter
-make docker
-```
 
 ## Configuration Variables
 
@@ -94,6 +118,7 @@ make docker
 | ENABLE_FILE_AUTH |         false         |        Load auth credentials from docker config file<br>at /$FILE_AUTH_DIR/config.json<br>Must leave auth through ENV empty.       |
 | FILE_AUTH_DIR |         /config         |        Directory where config.json resides       |
 | ENABLE_IPV6   |         false           | Use IPv6 instead of IPv4 when fetching rate limits |
+| REQUEST_INTERVAL   |         15           | Specify the interval in seconds at which requests should be sent to Dockerhub |
 <br>
 
 Example docker configuration config.json file below. <br>
@@ -108,6 +133,15 @@ Note that a more extensive configuration can be handled, as long as at least an 
   }
 }
 ```
+
+
+To build the image in your local environment
+
+]
+
+
+
+
 ## Local Demo
 You can find the complete docker-compose file along with a dashboard under deploy folder to test it out.
 
@@ -125,37 +159,8 @@ Exporter     | http://localhost:8881
 
 <br>
 
-## Helm Chart
 
-1. `git clone https://github.com/kha7iq/drl-exporter.git`
-2. `cd drl-exporter`
-3. `helm install <release name> deploy/chart --namespace=<desired namespace>`
-
-
-### Installing chart with username and password
-You can tweak the options for chart by setting values at run time or `values.yaml` file.
-If you intend to use the exporter with a username and password do remember to set the `enableUserAuth=true` as well.
-
-```bash
-helm install my-release deploy/chart --set config.dockerhubUsername=<username>,
-config.dockerhubPassword=<password>,config.enableUserAuth=true  --namespace=<namespace>
-```
-## Chart Configuration
-
-| Parameter                         | Description                                                                                                                 | Default                   |
-|-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------|---------------------------|
-| `config.exporterPort`             | Port the deployment exposes                                                                                                 | `2121`                    |
-| `config.enableUserAuth`           | Enable metrics for specific dockerhub account                                                                               | `false`                   |
-| `config.dockerhubUsername`        | Dockerhub Username                                                                                                          | `""`                      |
-| `config.dockerhubPassword`        | Dockerhub Password                                                                                                          | `nil`                     |
-| `config.enableFileAuth`           | Enable authentication through k8s secret, type `kubernetes.io/dockerconfigjson`. Only effective if enableUserAuth is false. | `false`                   |
-| `config.fileAuthDir`              | Path to mount the config.json in the pod. Only effective if enableFileAuth is true.                                         | `/config`                 |
-| `config.fileAuthSecretName`       | Name of existing k8s `kubernetes.io/dockerconfigjson` secret to use. Only effective if enableFileAuth is true.              | `dockerhub`               |
-| `serviceMonitor.enabled`          | If true, creates a ServiceMonitor instance                                                                                  | `false`                   |
-| `serviceMonitor.additionalLabels` | Configure additional labels for the servicemonitor                                                                          | `{}`                      |
-| `serviceMonitor.namespace`        | The namespace into which the servicemonitor is deployed.                                                                    | `same as chart namespace` |
-| `serviceMonitor.interval`         | The interval with which prometheus will scrape                                                                              | `30s`                     |
-| `serviceMonitor.scrapeTimeout`    | The timeout for the scrape request                                                                                          | `10s`                     |
+             |
 
 ## TODO
 - [x] Tests 
@@ -168,5 +173,3 @@ Please open an issue if you are facing any problems.
 
 ## Acknowledgments
 This project is inspired by [Michael Friedrich's](https://gitlab.com/dnsmichi) amazing work.
-
-Helm chart is based on [viadee's](https://github.com/viadee/docker-hub-rate-limit-exporter) helm chart.

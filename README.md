@@ -66,12 +66,12 @@ curl localhost:2121/metrics
 
 1. Add chart repository
 ```
-helm repo add lmno https://charts.lmno.pk
+helm repo add tektonops http://charts.tektonops.com
 helm repo update
 ```
 2. Install the chart
 ```
-helm install drl-exporter lmno/drl-exporter
+helm install drl-exporter tektonops/drl-exporter
 ```
 
 ### Installing the Chart with Username and Password
@@ -82,7 +82,7 @@ To use the exporter with a username and password, ensure `enableUserAuth=true` i
 Refer to the [chart repository](https://github.com/kha7iq/charts/tree/main/charts/drl-exporter) for all configuration options.
 
 ```bash
-helm install drl-exporter lmno/drl-exporter \
+helm install drl-exporter tektonops/drl-exporter \
  --set exporter.auth.enabled=true \
  --set exporter.auth.dockerHubUsername=<username> \
  --set exporter.auth.dockerHubPassword=<password>

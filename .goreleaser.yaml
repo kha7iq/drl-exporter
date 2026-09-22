@@ -1,3 +1,5 @@
+version: 2
+
 env:
   - GO111MODULE=on
 before:
@@ -48,49 +50,19 @@ nfpms:
     - git
 
 
-dockers:
-- image_templates:
-  - 'khaliq/drl-exporter:{{ .Tag }}-amd64'
-  - 'ghcr.io/kha7iq/drl-exporter:{{ .Tag }}-amd64'
-  dockerfile: Dockerfile
-  use: buildx
-  build_flag_templates:
-  - "--pull"
-  - "--label=org.opencontainers.image.created={{.Date}}"
-  - "--label=org.opencontainers.image.name={{.ProjectName}}"
-  - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-  - "--label=org.opencontainers.image.version={{.Version}}"
-  - "--label=org.opencontainers.image.source={{.GitURL}}"
-  - "--platform=linux/amd64"
-- image_templates:
-  - 'khaliq/drl-exporter:{{ .Tag }}-arm64'
-  - 'ghcr.io/kha7iq/drl-exporter:{{ .Tag }}-arm64'
-  dockerfile: Dockerfile
-  use: buildx
-  build_flag_templates:
-  - "--pull"
-  - "--label=org.opencontainers.image.created={{.Date}}"
-  - "--label=org.opencontainers.image.name={{.ProjectName}}"
-  - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-  - "--label=org.opencontainers.image.version={{.Version}}"
-  - "--label=org.opencontainers.image.source={{.GitURL}}"
-  - "--platform=linux/arm64/v8"
-  goarch: arm64
-
-docker_manifests:
-- name_template: 'khaliq/drl-exporter:{{ .Tag }}'
-  image_templates:
-  - 'khaliq/drl-exporter:{{ .Tag }}-amd64'
-  - 'khaliq/drl-exporter:{{ .Tag }}-arm64'
-- name_template: 'ghcr.io/kha7iq/drl-exporter:{{ .Tag }}'
-  image_templates:
-  - 'ghcr.io/kha7iq/drl-exporter:{{ .Tag }}-amd64'
-  - 'ghcr.io/kha7iq/drl-exporter:{{ .Tag }}-arm64'
-- name_template: 'khaliq/drl-exporter:latest'
-  image_templates:
-  - 'khaliq/drl-exporter:{{ .Tag }}-amd64'
-  - 'khaliq/drl-exporter:{{ .Tag }}-arm64'
-- name_template: 'ghcr.io/kha7iq/drl-exporter:latest'
-  image_templates:
-  - 'ghcr.io/kha7iq/drl-exporter:{{ .Tag }}-amd64'
-  - 'ghcr.io/kha7iq/drl-exporter:{{ .Tag }}-arm64'
+dockers_v2:
+  - images:
+      - khaliq/drl-exporter
+      - ghcr.io/kha7iq/drl-exporter
+    tags:
+      - '{{ .Tag }}'
+      - latest
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    labels:
+      "org.opencontainers.image.created": "{{.Date}}"
+      "org.opencontainers.image.name": "{{.ProjectName}}"
+      "org.opencontainers.image.revision": "{{.FullCommit}}"
+      "org.opencontainers.image.version": "{{.Version}}"
+      "org.opencontainers.image.source": "{{.GitURL}}"

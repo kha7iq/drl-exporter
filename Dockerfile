@@ -1,3 +1,4 @@
-FROM alpine:3.20.2
+FROM alpine:latest
+ARG TARGETPLATFORM
 ENTRYPOINT ["/usr/bin/drl-exporter"]
-COPY drl-exporter /usr/bin/drl-exporter
+COPY $TARGETPLATFORM/drl-exporter /usr/bin/drl-exporter
